@@ -1,0 +1,77 @@
+<html>
+
+	<head>
+		<meta charset="utf-8"/>
+		<title>Chat demo</title>
+	</head>
+	
+	<body>
+		<input type="text" id="username" placeholder = "username"/>
+		<button id="conn" onclick="getEventSource(getUsername());">connect</button>
+		<br>
+		<input type="text" id="input" placeholder = "message" disabled/>
+		<button onclick="send()" id="send" disabled>send</button>
+		
+		<script>
+			
+			var source = undefined;
+			
+			function getEventSource(username){
+				
+				if(username == "")
+					return;
+				
+				source = new EventSource("/message/emitte?name=" + username);
+			
+				source.addEventListener("message", function(event){
+					var response = JSON.parse(event.data);				
+					
+					console.log(response);	
+					receiveMessage("<strong>" + response.userName + "</strong>: " + response.message + "         " + response.instant);
+				});
+				
+				source.onerror = function (){
+					source.close();
+					getEventSource(getUsername());
+				};
+				
+				var input = document.getElementById("username");
+				var conn = document.getElementById("conn");
+				
+				input.disabled = true;
+				conn.disabled = true;
+				
+				var msg = document.getElementById("input");
+				var send = document.getElementById("send");
+				
+				msg.disabled = false;
+				send.disabled = false;
+			}
+			
+			
+			function send(){		
+				var input = document.getElementById("input");
+				
+				var request = new XMLHttpRequest();
+				request.open("POST", "/message/send");
+				request.send(input.value);
+				
+				input.value = "";
+			}
+		
+			function receiveMessage(message){
+				var p = document.createElement("p");
+				p.innerHTML = message;
+				document.body.appendChild(p);
+			}
+		
+			function getUsername(){
+				var input = document.getElementById("username");
+				console.log(input.value);
+				return input.value;
+			}
+		
+		</script>
+	</body>
+
+</html>
