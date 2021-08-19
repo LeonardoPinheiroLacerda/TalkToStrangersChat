@@ -22,13 +22,11 @@
 				if(username == "")
 					return;
 				
-				source = new EventSource("/message/emitte?name=" + username);
+				source = new EventSource("/users/submit?name=" + username);
 				userName = username;
 				
 				source.addEventListener("message", function(event){
 					var response = JSON.parse(event.data);				
-					
-					console.log(response);	
 					receiveMessage("<strong>" + response.userName + "</strong>: " + response.message + "         " + response.instant);
 				});
 				
@@ -58,7 +56,7 @@
 				var name = userName;
 				
 				var request = new XMLHttpRequest();
-				request.open("POST", "/message/send");
+				request.open("POST", "/messages/send");
 				request.setRequestHeader("content-type", "application/json;charset=UTF-8");
 				request.send(JSON.stringify({
 					"userName" : name,
@@ -76,7 +74,6 @@
 		
 			function getUsername(){
 				var input = document.getElementById("username");
-				console.log(input.value);
 				return input.value;
 			}
 		
