@@ -3,6 +3,7 @@ package com.sseEmitterDemo.project.resources;
 import java.io.IOException;
 import java.time.LocalTime;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,18 +20,22 @@ public class MessageResource {
 
 
 	@RequestMapping(method = RequestMethod.POST, value = "/send")
-	public void sendMessage(@RequestBody Message message) {
+	public ResponseEntity<Message> sendMessage(@RequestBody Message message) {
 
 		message.setInstant(LocalTime.now());
 		
 		for (User user: UserResource.users) {
 			try {
-				user.getEmitter().send(SseEmitter.event().data(message));
+				if(!user.getName().equals(message.getUserName())) {
+					user.getEmitter().send(SseEmitter.event().data(message));
+				}
 			} catch (IOException e) {
 				user.getEmitter().complete();
 				UserResource.users.remove(user);
 			}
 		}
+		
+		return ResponseEntity.ok(message);
 
 	}
 

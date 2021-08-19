@@ -1,5 +1,6 @@
 package com.sseEmitterDemo.project.resources;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -21,6 +22,15 @@ public class UserResource {
 	public SseEmitter getEmitter(@RequestParam(name="name") String name) {
 
 		SseEmitter emitter = new SseEmitter(-1L); //sem timeout
+		
+		users.forEach(user -> {
+			try {
+				user.getEmitter().send(SseEmitter.event().name("login").data(name));
+			} catch (IOException e) {
+				user.getEmitter().complete();
+				users.remove(user);
+			}
+		});
 		
 		users.add(new User(name, emitter));
 
