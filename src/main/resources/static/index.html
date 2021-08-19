@@ -15,6 +15,7 @@
 		<script>
 			
 			var source = undefined;
+			var userName = "";
 			
 			function getEventSource(username){
 				
@@ -22,7 +23,8 @@
 					return;
 				
 				source = new EventSource("/message/emitte?name=" + username);
-			
+				userName = username;
+				
 				source.addEventListener("message", function(event){
 					var response = JSON.parse(event.data);				
 					
@@ -50,13 +52,20 @@
 			
 			
 			function send(){		
+				
 				var input = document.getElementById("input");
+				var message  = input.value;
+				var name = userName;
 				
 				var request = new XMLHttpRequest();
 				request.open("POST", "/message/send");
-				request.send(input.value);
-				
-				input.value = "";
+				request.setRequestHeader("content-type", "application/json;charset=UTF-8");
+				request.send(JSON.stringify({
+					"userName" : name,
+					"message" : message,
+					"instant" : null
+				}));
+
 			}
 		
 			function receiveMessage(message){

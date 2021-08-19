@@ -33,16 +33,17 @@ public class MessageResource {
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/send")
-	public void sendMessage(@RequestBody String message) {
+	public void sendMessage(@RequestBody Message message) {
 
+		message.setInstant(LocalTime.now());
+		
 		for (User user: users) {
 			try {
-				user.getEmitter().send(SseEmitter.event().data(new Message(user.getName(), message, LocalTime.now())).name("message").reconnectTime(1000L));
+				user.getEmitter().send(SseEmitter.event().data(message));
 			} catch (IOException e) {
-				System.out.println(users.size());
 				user.getEmitter().complete();
 				users.remove(user);
-				System.out.println(users.size());
+				System.out.println(user.getName() + " is being removed.");
 			}
 		}
 
