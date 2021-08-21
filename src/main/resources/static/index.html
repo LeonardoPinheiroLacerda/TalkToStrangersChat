@@ -1,28 +1,65 @@
 <html>
 
-	<head>
-		<meta charset="utf-8"/>
-		<link rel="stylesheet" href="style/global.css">
-		<link rel="stylesheet" href="style/username.css">
-		<title>Talk to strangers</title>
-		
-	</head>
-	
-	<body>
-		<form action="/chat/index.html" id="form">
-			<input name="name" type="text" id="username" autocomplete="off" placeholder = "Nome de usuario"/>
-			<input type="submit" id="conn" value="Entrar"/>
-		</form>
-		
-		<script>
-		
-			var form = document.getElementById("form");
-			form.onsubmit = function(e){
-				var name = document.getElementById("username");
-				return name.value != "";
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="style/global.css">
+	<link rel="stylesheet" href="style/username.css">
+	<title>Talk to strangers</title>
+
+</head>
+
+<body>
+
+	<script>
+
+		function check() {
+			var name = document.getElementById("username");
+			if (name.value == "") {
+				return;
 			}
-			
-				
-		</script>
-	</body>
+
+			var request = new XMLHttpRequest();
+			request.open("GET", "users/isLogged?name=" + name.value);
+
+			request.onreadystatechange = function () {
+				if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+					if(request.response == "false"){
+						document.location = document.location += "chat/index.html?name=" + name.value; 
+					}else{
+						alert("Nome de usuario já em utilização");
+					}
+				}
+			}
+
+			request.send();
+
+
+		}
+
+		function listen(event) {
+			if (event.key == "Enter") {
+				alert("enter");
+			}
+		}
+
+	</script>
+	<div class="conteudo">
+		<input name="name" type="text" id="username" autocomplete="off" placeholder="Nome de usuario" />
+		<input type="button" id="conn" value="Entrar" onclick="check()" />
+	</div>
+
+	<script>
+
+		var input = document.getElementById('username');
+		input.addEventListener('keyup', function (e) {
+			var key = e.which || e.keyCode;
+			if (key == 13) { // codigo da tecla enter
+				check();
+			}
+		});
+
+	</script>
+
+</body>
+
 </html>
